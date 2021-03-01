@@ -1,0 +1,29 @@
+{
+  "name": "Project-One",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "start": "node ./src/server.js",
+    "pretest": "eslint ./src --fix",
+    "test": "echo \"Tests complete\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/OliverH22/omh7431-project-one.git"
+  },
+  "keywords": [
+    "start"
+  ],
+  "author": "Oliver",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/OliverH22/omh7431-project-one/issues"
+  },
+  "homepage": "https://github.com/OliverH22/omh7431-project-one#readme",
+  "devDependencies": {
+    "eslint": "^7.8.1",
+    "eslint-config-airbnb": "^18.2.0",
+    "eslint-plugin-import": "^2.22.0",
+    "nodemon": "^2.0.4"
+  }
+}
