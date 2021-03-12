@@ -64,7 +64,7 @@ const respondJSON = (request, response, status, object) => {
 };
 
 // function to respond without json body and takes everything in it
-const respondJSONMeta = (request, response, status) => {
+const respondJSON2 = (request, response, status) => {
   response.writeHead(status, { 'Content-Type': 'application/json' });
   response.end();
 };
@@ -105,7 +105,7 @@ const addUser = (request, response, body) => {
     responseJSON.message = 'Created Successfully';
     return respondJSON(request, response, responseCode, responseJSON);
   }
-  return respondJSONMeta(request, response, responseCode);
+  return respondJSON2(request, response, responseCode);
 };
 
 const notFound = (request, response) => {
@@ -117,7 +117,7 @@ const notFound = (request, response) => {
   return respondJSON(request, response, 404, responseJSON);
 };
 
-const notFoundMeta = (request, response) => respondJSONMeta(request, response, 404);
+const notFound2 = (request, response) => respondJSON2(request, response, 404);
 
 // exporting
 module.exports = {
@@ -125,7 +125,7 @@ module.exports = {
   getUser,
   addUser,
   respondJSON,
-  respondJSONMeta,
+  respondJSON2,
   notFound,
-  notFoundMeta,
+  notFound2,
 };
