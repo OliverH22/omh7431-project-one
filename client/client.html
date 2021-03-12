@@ -1,38 +1,92 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <title>Project One</title>
-    <style>
-        html,
-        body {
-            height: 100%;
-            width: 100%;
-            margin: 0;
-            padding: 0;
-        }
+  <title>Video Streamer</title>
+  <link rel="stylesheet" type="text/css" href="/style.css">
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.34/browser.min.js"></script>
+  <script type="text/babel">
+    const parseJSON = (xhr, content) => {
+      const obj = JSON.parse(xhr.response);
+      console.dir(obj);
+        
+      //if message in response, add to screen
+      if(obj.message) {
+        const p = document.createElement('p');
+        p.textContent = `Message: ${obj.message}`;
+        content.appendChild(p);
+      }
+      
+      //if users in response, add to screen
+      if(obj.accounts) {
+        const accountList = document.createElement('p');
+        const accounts = JSON.stringify(obj.accounts);
+        accountList.textContent = words;
+        content.appendChild(accountList);
+      }
+    };
 
-        h1 {
-            text-align: center;
-            margin: 0 auto;
-            padding-top: 19%;
-            font-size: 2.6em;
-        }
-    </style>
+    const handleResponse = (xhr, parseResponse) => {
+      const content = document.querySelector('#content');
+      
+      //check the status code
+      switch(xhr.status) {
+        case 200: //success
+          content.innerHTML = `<b>Success</b>`;
+          break;
+        case 201: //created
+          content.innerHTML = '<b>Create</b>';
+          break;       
+        case 400: //bad request
+          content.innerHTML = `<b>Bad Request</b>`;
+          break;
+        case 404: //updated (no response back from server)
+          content.innerHTML = '<b>Not found</b>';
+          return;
+        default: //any other status code
+          content.innerHTML = `Error code not implemented by client.`;
+          break;
+              
+        parseJSON(xhr, content);
+      };
+    };
+    const sendPost = (e, wordForm) => {
+
+    };
+
+    const init = () => {
+      const accountForm = document.querySelector('#usernameForm');
+      
+      const addAccount = (e) => sendPost(e, usernameForm);
+      
+      usernameForm.addEventListener('submit', addAccount);
+    };
+
+    window.onload = init;
+
+  </script>
 </head>
-
 <body>
-
-    <div class="topnav">
-        <input type="text" placeholder="Login">
-        <input type="text" placeholder="Search Video">
-    </div>
-
-    <div id="demo">
-        <h2>Ajax test</h2>
-        <button type="button" onclick="loadDoc()">Show video</button>
-      </div>
-    <!-- <video src="party.mp4" autoplay controls></video> -->
+  <section id="top">
+    <h1>Video Streamer</h1>
+    <br>
+    <h3>Create An Account</h3>
+    <form id="usernameForm" action="/addUsername" method="post">
+      <label for="username">Username: </label>
+      <input id="usernameField" type="text" name="username" />
+      <label for="password">Password: </label>
+      <input id="passwordField" type="text" name="password" />
+      <label for="video">MP4 file: </label>
+      <!-- <input id="videoField" type="text" name="video" /> -->
+      <form action="/action_page.php">
+        <input type="file" id="myFile" name="video">        
+      </form>
+      <input type="submit" value="Add User & Video" />
+    </form>
+    <p>Go to /getUsers to see a list of users.</p>
+    <a href="/client/client2.html">Video Page</a>
+  </section>
+  <section id="content">
+  </section>
 </body>
-
 </html>

@@ -1,111 +1,131 @@
-const userClosets = {};
+const fs = require('fs');
+const path = require('path');
 
+const accounts = {};
+
+// gets and plays video
+// Code is from Streaming Assignment
+const getVideo = (request, response) => {
+  const file = path.resolve(__dirname, '../client/.mp4');
+
+  fs.stat(file, (err, stats) => {
+    if (err) {
+      if (err.code === 'ENOENT') {
+        response.writeHead(404);
+      }
+      return response.end(err);
+    }
+
+    let { range } = request.headers;
+
+    if (!range) {
+      range = 'bytes=0-';
+    }
+
+    const positions = range.replace(/bytes=/, '').split('-');
+
+    let start = parseInt(positions[0], 10);
+
+    const total = stats.size;
+    const end = positions[1] ? parseInt(positions[1], 10) : total - 1;
+
+    if (start > end) {
+      start = end - 1;
+    }
+
+    const chunksize = (end - start) + 1;
+
+    response.writeHead(206, {
+      'Content-Range': `bytes ${start}-${end}/${total}`,
+      'Accept-Ranges': 'bytes',
+      'Content-Length': chunksize,
+      'Content-Type': 'video/mp4',
+    });
+
+    const stream = fs.createReadStream(file, { start, end });
+
+    stream.on('open', () => {
+      stream.pipe(response);
+    });
+
+    stream.on('error', (streamErr) => {
+      response.end(streamErr);
+    });
+
+    return stream;
+  });
+};
+
+// function to respond with a json object and takes everything to send
 const respondJSON = (request, response, status, object) => {
   response.writeHead(status, { 'Content-Type': 'application/json' });
   response.write(JSON.stringify(object));
   response.end();
 };
 
+// function to respond without json body and takes everything in it
 const respondJSONMeta = (request, response, status) => {
-  const headers = {
-    'Content-Type': 'application/json'
-  };
-
-  response.writeHead(status, headers);
+  response.writeHead(status, { 'Content-Type': 'application/json' });
   response.end();
 };
 
-const success = (request, response) => {
+// return user as JSON
+const getUser = (request, response) => {
   const responseJSON = {
-    message: 'This is a successful response',
+    accounts,
   };
 
-  return respondJSON(request, response, 200, responseJSON);
+  respondJSON(request, response, 200, responseJSON);
 };
 
-
-const badRequest = (request, response) => {
+// function to add a user from POST
+const addUser = (request, response, body) => {
+  // default message
   const responseJSON = {
-    message: 'This request has the required parameters',
+    message: 'Username and password are both required.',
   };
-  return respondJSON(request, response, 200, responseJSON);
+
+  // check to make sure we have everything
+  // If either anything is missing, send back an error message
+  if (!body.word || !body.definition) {
+    responseJSON.id = 'missingParams';
+    return respondJSON(request, response, 400, responseJSON);
+  }
+
+  // default code
+  const responseCode = 201;
+
+  // update fields for this user name
+  accounts[body.username].username = body.username;
+  accounts[body.username].password = body.password;
+
+  // if response is created, then set our created message
+  // and sent response with a message
+  if (responseCode === 201) {
+    responseJSON.message = 'Created Successfully';
+    return respondJSON(request, response, responseCode, responseJSON);
+  }
+  return respondJSONMeta(request, response, responseCode);
 };
 
 const notFound = (request, response) => {
   const responseJSON = {
-    message: 'The page you are looking for was not found.',
+    message: 'The page you are looking for was not found!',
     id: 'notFound',
   };
 
   return respondJSON(request, response, 404, responseJSON);
 };
 
-const getUserClosets = (request, response) => {
-  // should default to good
-  const responseJSON = {
-    userClosets,
-  };
+const notFoundMeta = (request, response) => respondJSONMeta(request, response, 404);
 
-  respondJSON(request, response, 200, responseJSON);
-};
-const getUserClosetsMeta = (request, response) => respondJSONMeta(request, response, 200);
-
-
-const addUserItem = (request, response, body) => {
-  const responseJSON = {
-    message: 'image, name, and cost are required!!',
-  };
-
-  if (!body.name || !body.cost || !body.category || !body.url) {
-    respondJSON.id = 'missingParams';
-    return respondJSON(request, response, 400, responseJSON);
-  }
-
-  let responseCode = 201;
-
-  // item name does it all i guess
-  if (userClosets[body.name]) {
-    responseCode = 204;
-  } else {
-    userClosets[body.name] = {};
-  }
-
-  userClosets[body.name].name = body.name;
-  userClosets[body.name].cost = body.cost;
-  userClosets[body.name].category = body.category;
-  userClosets[body.name].url = body.url;
-
-  if (responseCode === 201) {
-    responseJSON.message = 'created successfully!';
-    return respondJSON(request, response, responseCode, responseJSON);
-  }
-
-  console.log('added');
-
-  return respondJSONMeta(request, response, responseCode);
-};
-
-const addItemMeta = (request, response) => respondJSONMeta(request, response, 200);
-
-
-const notReal = (request, response) => {
-  // should default to good
-  const responseJSON = {
-    message: 'This was successfully not found',
-    id: 'notFound',
-  };
-
-  return respondJSON(request, response, 200, responseJSON);
-};
-
-
+// exporting
 module.exports = {
-  success,
-  badRequest,
+  getVideo,
+  getUser,
+  addUser,
+  respondJSON,
+  respondJSONMeta,
   notFound,
-  getUserClosets,
-  getUserClosetsMeta,
-  addUserItem,
-  addItemMeta,
-  notReal,
+  notFoundMeta,
 };
