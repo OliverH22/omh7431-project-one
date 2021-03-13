@@ -5,56 +5,56 @@ const accounts = {};
 
 // gets and plays video
 // Code is from Streaming Assignment
-const getVideo = (request, response) => {
-  const file = path.resolve(__dirname, '../client/.mp4');
+// const getVideo = (request, response) => {
+//   const file = path.resolve(__dirname, '../client/.mp4');
 
-  fs.stat(file, (err, stats) => {
-    if (err) {
-      if (err.code === 'ENOENT') {
-        response.writeHead(404);
-      }
-      return response.end(err);
-    }
+//   fs.stat(file, (err, stats) => {
+//     if (err) {
+//       if (err.code === 'ENOENT') {
+//         response.writeHead(404);
+//       }
+//       return response.end(err);
+//     }
 
-    let { range } = request.headers;
+//     let { range } = request.headers;
 
-    if (!range) {
-      range = 'bytes=0-';
-    }
+//     if (!range) {
+//       range = 'bytes=0-';
+//     }
 
-    const positions = range.replace(/bytes=/, '').split('-');
+//     const positions = range.replace(/bytes=/, '').split('-');
 
-    let start = parseInt(positions[0], 10);
+//     let start = parseInt(positions[0], 10);
 
-    const total = stats.size;
-    const end = positions[1] ? parseInt(positions[1], 10) : total - 1;
+//     const total = stats.size;
+//     const end = positions[1] ? parseInt(positions[1], 10) : total - 1;
 
-    if (start > end) {
-      start = end - 1;
-    }
+//     if (start > end) {
+//       start = end - 1;
+//     }
 
-    const chunksize = (end - start) + 1;
+//     const chunksize = (end - start) + 1;
 
-    response.writeHead(206, {
-      'Content-Range': `bytes ${start}-${end}/${total}`,
-      'Accept-Ranges': 'bytes',
-      'Content-Length': chunksize,
-      'Content-Type': 'video/mp4',
-    });
+//     response.writeHead(206, {
+//       'Content-Range': `bytes ${start}-${end}/${total}`,
+//       'Accept-Ranges': 'bytes',
+//       'Content-Length': chunksize,
+//       'Content-Type': 'video/mp4',
+//     });
 
-    const stream = fs.createReadStream(file, { start, end });
+//     const stream = fs.createReadStream(file, { start, end });
 
-    stream.on('open', () => {
-      stream.pipe(response);
-    });
+//     stream.on('open', () => {
+//       stream.pipe(response);
+//     });
 
-    stream.on('error', (streamErr) => {
-      response.end(streamErr);
-    });
+//     stream.on('error', (streamErr) => {
+//       response.end(streamErr);
+//     });
 
-    return stream;
-  });
-};
+//     return stream;
+//   });
+// };
 
 // function to respond with a json object and takes everything to send
 const respondJSON = (request, response, status, object) => {
@@ -87,7 +87,7 @@ const addUser = (request, response, body) => {
 
   // check to make sure we have everything
   // If either anything is missing, send back an error message
-  if (!body.word || !body.definition) {
+  if (!body.username || !body.video) {
     responseJSON.id = 'missingParams';
     return respondJSON(request, response, 400, responseJSON);
   }
@@ -98,6 +98,7 @@ const addUser = (request, response, body) => {
   // update fields for this user name
   accounts[body.username].username = body.username;
   accounts[body.username].password = body.password;
+  accounts[body.username].video = body.video;
 
   // if response is created, then set our created message
   // and sent response with a message
@@ -121,7 +122,6 @@ const notFound2 = (request, response) => respondJSON2(request, response, 404);
 
 // exporting
 module.exports = {
-  getVideo,
   getUser,
   addUser,
   respondJSON,

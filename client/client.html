@@ -57,9 +57,9 @@
     const init = () => {
       const accountForm = document.querySelector('#usernameForm');
       
-      const addAccount = (e) => sendPost(e, usernameForm);
+      const addUser = (e) => sendPost(e, usernameForm);
       
-      usernameForm.addEventListener('submit', addAccount);
+      usernameForm.addEventListener('submit', addUser);
     };
 
     window.onload = init;
@@ -76,11 +76,11 @@
       <input id="usernameField" type="text" name="username" />
       <label for="password">Password: </label>
       <input id="passwordField" type="text" name="password" />
-      <label for="video">MP4 file: </label>
-      <!-- <input id="videoField" type="text" name="video" /> -->
-      <form action="/action_page.php">
+      <label for="video">Youtube Link: </label>
+      <input id="videoField" type="text" name="video" />
+      <!-- <form action="/action_page.php">
         <input type="file" id="myFile" name="video">        
-      </form>
+      </form> -->
       <input type="submit" value="Add User & Video" />
     </form>
     <p>Go to /getUsers to see a list of users.</p>

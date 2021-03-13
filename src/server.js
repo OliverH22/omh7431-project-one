@@ -26,16 +26,16 @@ const onRequest = (request, response) => {
 };
 
 // Don't know about this one
-function loadDoc() {
-  const xhttp = new XMLHttpRequest();
-  xhttp.onreadystatechange = function () {
-    if (this.readyState === 4 && this.status === 200) {
-      document.getElementById('demo').innerHTML = this.responseText;
-    }
-  };
-  xhttp.open('GET', 'ajax.txt', true);
-  xhttp.send();
-}
+// function loadDoc() {
+//   const xhttp = new XMLHttpRequest();
+//   xhttp.onreadystatechange = function () {
+//     if (this.readyState === 4 && this.status === 200) {
+//       document.getElementById('demo').innerHTML = this.responseText;
+//     }
+//   };
+//   xhttp.open('GET', 'ajax.txt', true);
+//   xhttp.send();
+// }
 
 http.createServer(onRequest).listen(port);
 
